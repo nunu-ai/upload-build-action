@@ -71,7 +71,7 @@ function getInputs(): ActionInputs {
     platform: core.getInput('platform') || undefined,
     description: core.getInput('description') || undefined,
     autoDelete,
-    deletionPolicy: core.getInput('deletion-policy') || 'least_recent',
+    deletionPolicy: core.getInput('deletion-policy') || undefined,
     uploadTimeout: core.getInput('upload-timeout') || undefined,
     cliVersion: core.getInput('cli-version') || 'latest',
   };
@@ -79,7 +79,7 @@ function getInputs(): ActionInputs {
 
 function validateInputs(inputs: ActionInputs): void {
   // Validate deletion policy
-  if (!['least_recent', 'oldest'].includes(inputs.deletionPolicy)) {
+  if (inputs.deletionPolicy && !['least_recent', 'oldest'].includes(inputs.deletionPolicy)) {
     throw new Error(
       `Invalid deletion-policy: ${inputs.deletionPolicy}. Must be "least_recent" or "oldest".`
     );

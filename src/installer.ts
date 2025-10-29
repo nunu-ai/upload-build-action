@@ -14,32 +14,27 @@ export async function getCliPath(version: string): Promise<string> {
   core.info(`Setting up nunu-cli ${version}...`);
 
   const platform = getPlatform();
-  const arch = 'x86_64'; // Expand later for arm64
-
-  // Check if already cached
-  let toolPath = tc.find(TOOL_NAME, version);
-  if (toolPath) {
-    core.info(`✓ Found cached nunu-cli ${version}`);
-    const binaryPath = path.join(toolPath, getCliFilename(platform));
-    return binaryPath;
-  }
+  const arch = 'x86_64';
 
   // Resolve version if 'latest'
   if (version === 'latest') {
     version = await getLatestVersion();
     core.info(`Latest version: ${version}`);
+  }
 
-    // Check cache again with resolved version
-    toolPath = tc.find(TOOL_NAME, version);
-    if (toolPath) {
-      core.info(`✓ Found cached nunu-cli ${version}`);
-      return path.join(toolPath, getCliFilename(platform));
-    }
+  // Remove 'v' prefix if present for clean version
+  const cleanVersion = version.replace(/^v/, '');
+
+  // Check if already cached
+  let toolPath = tc.find(TOOL_NAME, cleanVersion);
+  if (toolPath) {
+    core.info(`✓ Found cached nunu-cli ${cleanVersion}`);
+    return path.join(toolPath, getCliFilename(platform));
   }
 
   // Download CLI
-  core.info(`Downloading nunu-cli ${version} for ${platform}-${arch}...`);
-  const downloadUrl = getDownloadUrl(version, platform, arch);
+  core.info(`Downloading nunu-cli ${cleanVersion} for ${platform}-${arch}...`);
+  const downloadUrl = getDownloadUrl(cleanVersion, platform, arch);
   core.debug(`Download URL: ${downloadUrl}`);
 
   const downloadPath = await tc.downloadTool(downloadUrl);
@@ -56,11 +51,10 @@ export async function getCliPath(version: string): Promise<string> {
     downloadPath,
     binaryName,
     TOOL_NAME,
-    version
+    cleanVersion
   );
 
-  core.info(`✓ Cached nunu-cli ${version}`);
-
+  core.info(`✓ Cached nunu-cli ${cleanVersion}`);
   return path.join(cachedPath, binaryName);
 }
 
@@ -69,14 +63,16 @@ function getDownloadUrl(
   platform: Platform,
   arch: string
 ): string {
-  // Remove 'v' prefix if present
-  const cleanVersion = version.replace(/^v/, '');
-
   const platformName = platform === 'darwin' ? 'macos' : platform === 'win32' ? 'windows' : 'linux';
   const extension = platform === 'win32' ? '.exe' : '';
-  const filename = `nunu-cli-v${cleanVersion}-${platformName}-${arch}${extension}`;
 
-  return `https://github.com/${REPO_OWNER}/${REPO_NAME}/releases/download/v${cleanVersion}/${filename}`;
+  // Asset filename: nunu-cli-v0.1.6-linux-x86_64
+  const filename = `nunu-cli-v${version}-${platformName}-${arch}${extension}`;
+
+  // Tag: v0.1.6
+  const tag = `v${version}`;
+
+  return `https://github.com/${REPO_OWNER}/${REPO_NAME}/releases/download/${tag}/${filename}`;
 }
 
 async function getLatestVersion(): Promise<string> {
@@ -93,6 +89,7 @@ async function getLatestVersion(): Promise<string> {
     );
   }
 
+  // Tag will be "v0.1.6", return "0.1.6"
   const version = response.result.tag_name.replace(/^v/, '');
   return version;
 }

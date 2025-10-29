@@ -5,8 +5,8 @@ export interface ActionInputs {
   name?: string;
   platform?: string;
   description?: string;
-  autoDelete: boolean;
-  deletionPolicy: string;
+  autoDelete?: boolean;
+  deletionPolicy?: string;
   uploadTimeout?: string;
   cliVersion: string;
 }
