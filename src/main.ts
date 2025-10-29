@@ -71,7 +71,7 @@ function getInputs(): ActionInputs {
     platform: core.getInput('platform') || undefined,
     description: core.getInput('description') || undefined,
     autoDelete,
-    deletionPolicy: core.getInput('deletion-policy') || undefined,
+    deletionPolicy: autoDelete ? core.getInput('deletion-policy') || undefined : undefined,
     uploadTimeout: core.getInput('upload-timeout') || undefined,
     cliVersion: core.getInput('cli-version') || 'latest',
   };

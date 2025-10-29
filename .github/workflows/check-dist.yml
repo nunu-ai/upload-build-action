@@ -36,22 +36,6 @@ jobs:
       - name: Create test file
         run: echo "test content" > test.txt
       
-      - name: Download and inspect CLI manually
-        run: |
-          echo "=== Downloading CLI ==="
-          wget https://github.com/nunu-ai/nunu-cli/releases/download/v0.1.7/nunu-cli-v0.1.7-linux-x86_64 -O nunu-cli
-          chmod +x nunu-cli
-          
-          echo "=== File info ==="
-          ls -lh nunu-cli
-          file nunu-cli
-          
-          echo "=== Checking dynamic dependencies ==="
-          ldd nunu-cli || echo "Static binary or error"
-          
-          echo "=== Testing execution ==="
-          ./nunu-cli --version || echo "FAILED TO RUN"
-      
       - name: Test action
         uses: ./
         with:
