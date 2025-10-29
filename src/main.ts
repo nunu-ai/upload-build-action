@@ -5,30 +5,33 @@ import type { ActionInputs } from './types';
 
 async function run(): Promise<void> {
   try {
-    // Get inputs
     const inputs = getInputs();
-
-    // Validate inputs
     validateInputs(inputs);
 
-    // Get CLI path (downloads and caches if needed)
+    // Get CLI path
     const cliPath = await getCliPath(inputs.cliVersion);
     core.info(`Using nunu-cli at: ${cliPath}`);
 
     // Build command
     const args = buildArgs(inputs);
 
-    // Execute upload
+    // Execute upload IN THE CURRENT WORKING DIRECTORY
     core.info('Starting upload...');
     core.info(`File: ${inputs.file}`);
     if (inputs.name) {
       core.info(`Name: ${inputs.name}`);
     }
 
+    // Debug: Show environment
+    core.debug(`Working directory: ${process.cwd()}`);
+    core.debug(`GITHUB_ACTIONS: ${process.env.GITHUB_ACTIONS}`);
+    core.debug(`GITHUB_SHA: ${process.env.GITHUB_SHA}`);
+
     let output = '';
     let error = '';
 
     const exitCode = await exec.exec(cliPath, args, {
+      cwd: process.cwd(),  // Ensure it runs in the checked-out repo
       listeners: {
         stdout: (data: Buffer) => {
           output += data.toString();
@@ -43,7 +46,7 @@ async function run(): Promise<void> {
       throw new Error(`Upload failed with exit code ${exitCode}\n${error}`);
     }
 
-    // Parse output for build ID (if CLI outputs it)
+    // Parse output for build ID
     const buildIdMatch = output.match(/Build ID: ([a-f0-9-]+)/i);
     if (buildIdMatch) {
       core.setOutput('build-id', buildIdMatch[1]);
