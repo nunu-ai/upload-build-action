@@ -1,0 +1,42 @@
+name: Check Dist
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  check-dist:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+      
+      - name: Install dependencies
+        run: npm ci
+      
+      - name: Build
+        run: npm run build
+      
+      - name: Compare dist/
+        run: |
+          if [ "$(git diff --ignore-space-at-eol dist/ | wc -l)" -gt "0" ]; then
+            echo "Detected uncommitted changes after build."
+            echo "Please run 'npm run build' and commit the changes."
+            git diff
+            exit 1
+          fi
+      
+      - name: Test action
+        uses: ./
+        with:
+          api-token: 'test-token'
+          project-id: 'test-project'
+          file: 'package.json'
+          name: 'Test Build'
