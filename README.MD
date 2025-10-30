@@ -62,7 +62,7 @@ jobs:
 |-------|-------------|
 | `api-token` | nunu.ai API token |
 | `project-id` | nunu.ai project ID |
-| `file` | Path to build file |
+| `file` | Path to build file or glob pattern |
 
 ### Optional
 
@@ -84,6 +84,39 @@ jobs:
 | `build-id` | UUID of uploaded build |
 
 ## Examples
+
+### Single File
+```yaml
+- uses: nunu-ai/upload-build-action@v1
+  with:
+    api-token: ${{ secrets.NUNU_API_TOKEN }}
+    project-id: ${{ secrets.NUNU_PROJECT_ID }}
+    file: 'build/app.apk'
+    name: 'Build ${{ github.run_number }}'
+```
+
+### Pattern Matching (Unknown Filename)
+```yaml
+# When your build adds version to filename
+- uses: nunu-ai/upload-build-action@v1
+  with:
+    api-token: ${{ secrets.NUNU_API_TOKEN }}
+    project-id: ${{ secrets.NUNU_PROJECT_ID }}
+    file: 'build/app-v*.apk'
+    name: 'Android Release'
+
+# When build adds timestamp or hash
+- uses: nunu-ai/upload-build-action@v1
+  with:
+    api-token: ${{ secrets.NUNU_API_TOKEN }}
+    project-id: ${{ secrets.NUNU_PROJECT_ID }}
+    file: 'dist/myapp-*.exe'
+    name: 'Windows Build ${{ github.run_number }}'
+```
+
+**Supported patterns**: `*` (any characters), `?` (single character), `[...]` (character sets)
+
+Useful when your build tool generates dynamic filenames. If multiple files match, each becomes a separate build.
 
 ### Multi-Platform
 ```yaml
@@ -140,6 +173,7 @@ The same metadata collection works when using nunu-cli directly in other CI/CD s
 
 - ✅ Simple one-step upload from GitHub Actions
 - ✅ Uses nunu-cli under the hood (automatic metadata collection)
+- ✅ File pattern matching with glob patterns
 - ✅ Automatic platform detection from file extension
 - ✅ Large file support (multipart uploads for files >3GB)
 - ✅ Smart storage management with auto-delete
