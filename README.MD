@@ -94,7 +94,7 @@ steps:
 | `project-id` | Yes | - | Nunu.ai project ID |
 | `file` | Yes | - | Path to build file |
 | `name` | No | `Build {run_number}` | Build name |
-| `platform` | No | Auto-detected | Target platform |
+| `platform` | sometimes | auto (inferred if possible) | Target platform |
 | `description` | No | - | Build description |
 | `auto-delete` | No | `false` | Auto-delete old builds when storage full |
 | `deletion-policy` | No | `least_recent` | Deletion policy: `least_recent` or `oldest` |
@@ -130,15 +130,14 @@ Supported platforms:
 - `android` - Android APKs
 - `ios-native` - iOS native apps
 - `ios-simulator` - iOS simulator builds
-- `web` - Web applications
 
-Platform is auto-detected from file extension if not specified.
+Platform is auto-detected from file extension if possible.
 
 ## Setup
 
 ### 1. Get API Token
 
-1. Go to [Nunu.ai Settings](https://nunu.ai/settings/tokens)
+1. Go to nunu.ai, project admin → settings → api keys
 2. Create a new API token with `project:manage-build-storage` permission
 3. Copy the token
 
@@ -161,7 +160,7 @@ The action automatically collects and includes:
 - **CI information**: Workflow name, run number, triggered by
 - **Build information**: Timestamp, runner OS
 
-This metadata is visible in the Nunu.ai dashboard and used by the PR bot.
+This metadata is visible in the nunu.ai dashboard and used by the PR bot.
 
 ## Storage Management
 
@@ -210,8 +209,6 @@ with:
 ## Support
 
 - 📖 [Documentation](https://docs.nunu.ai)
-- 💬 [Discord Community](https://discord.gg/nunu)
-- 📧 [Email Support](mailto:support@nunu.ai)
 
 ## License
 
