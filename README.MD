@@ -1,17 +1,8 @@
 # Upload Build to nunu.ai
 
-GitHub Action to upload build artifacts to [nunu.ai](https://nunu.ai) for automated testing.
+GitHub Action to upload build artifacts to nunu.ai for automated testing.
 
-## Features
-
-- ✅ Simple one-step upload from GitHub Actions
-- ✅ Automatic metadata collection (commit, branch, PR info)
-- ✅ Large file support via multipart uploads
-- ✅ Automatic storage management with configurable deletion policies
-
-## Usage
-
-### Basic Example
+## Quick Start
 ```yaml
 - name: Upload to nunu.ai
   uses: nunu-ai/upload-build-action@v1
@@ -19,9 +10,23 @@ GitHub Action to upload build artifacts to [nunu.ai](https://nunu.ai) for automa
     api-token: ${{ secrets.NUNU_API_TOKEN }}
     project-id: ${{ secrets.NUNU_PROJECT_ID }}
     file: 'build/app.apk'
+    name: 'Build ${{ github.run_number }}'
 ```
 
-### Complete Example
+## Setup
+
+### 1. Get API Token
+
+Get your API token from **Project Admin → API Keys** in nunu.ai with the `project:manage-build-storage` permission.
+
+### 2. Add Secrets
+
+In your repository **Settings → Secrets and variables → Actions**:
+
+- Add `NUNU_API_TOKEN` with your API token
+- Add `NUNU_PROJECT_ID` with your project ID
+
+### 3. Use the Action
 ```yaml
 name: Build and Upload
 
@@ -29,32 +34,58 @@ on:
   push:
     branches: [main]
   pull_request:
-    branches: [main]
 
 jobs:
   build:
     runs-on: ubuntu-latest
-
+    
     steps:
       - uses: actions/checkout@v4
-
-      - name: Build Android
-        run: ./gradlew assembleRelease
-
+      
+      - name: Build
+        run: ./build.sh
+      
       - name: Upload to nunu.ai
         uses: nunu-ai/upload-build-action@v1
         with:
           api-token: ${{ secrets.NUNU_API_TOKEN }}
           project-id: ${{ secrets.NUNU_PROJECT_ID }}
-          file: 'app/build/outputs/apk/release/app-release.apk'
+          file: 'build/app.apk'
           name: 'Build ${{ github.run_number }}'
-          platform: 'android'
-          description: 'Automated build from ${{ github.ref }}'
-          auto-delete: true
-          deletion-policy: 'least_recent'
 ```
 
-### Multi-Platform Build
+## Inputs
+
+### Required
+
+| Input | Description |
+|-------|-------------|
+| `api-token` | nunu.ai API token |
+| `project-id` | nunu.ai project ID |
+| `file` | Path to build file |
+
+### Optional
+
+| Input | Default | Description |
+|-------|---------|-------------|
+| `name` | `Build {run_number}` | Build name |
+| `platform` | Auto-detected | Target platform |
+| `description` | - | Build description |
+| `auto-delete` | `false` | Auto-delete old builds when storage full |
+| `deletion-policy` | `least_recent` | `least_recent` or `oldest` |
+| `upload-timeout` | Auto | Timeout in minutes (1-1440) |
+| `tags` | - | Comma-separated tags |
+| `cli-version` | `latest` | nunu-cli version |
+
+## Outputs
+
+| Output | Description |
+|--------|-------------|
+| `build-id` | UUID of uploaded build |
+
+## Examples
+
+### Multi-Platform
 ```yaml
 strategy:
   matrix:
@@ -67,149 +98,64 @@ strategy:
         file: 'dist/app-macos'
       - os: windows-latest
         platform: windows
-        file: 'dist/app-windows.exe'
+        file: 'dist/app.exe'
 
 steps:
   - uses: actions/checkout@v4
-
   - name: Build
     run: ./build.sh
-
-  - name: Upload to nunu.ai
-    uses: nunu-ai/upload-build-action@v1
+  - uses: nunu-ai/upload-build-action@v1
     with:
       api-token: ${{ secrets.NUNU_API_TOKEN }}
       project-id: ${{ secrets.NUNU_PROJECT_ID }}
       file: ${{ matrix.file }}
       name: '${{ matrix.platform }} Build ${{ github.run_number }}'
       platform: ${{ matrix.platform }}
-      auto-delete: true
 ```
 
-## Inputs
-
-| Input | Required | Default | Description |
-|-------|----------|---------|-------------|
-| `api-token` | Yes | - | nunu.ai API token |
-| `project-id` | Yes | - | nunu.ai project ID |
-| `file` | Yes | - | Path to build file |
-| `name` | No | `Build {run_number}` | Build name |
-| `platform` | sometimes | auto (inferred if possible) | Target platform |
-| `description` | No | - | Build description |
-| `auto-delete` | No | `false` | Auto-delete old builds when storage full |
-| `deletion-policy` | No | `least_recent` | Deletion policy: `least_recent` or `oldest` |
-| `upload-timeout` | No | - | Upload timeout in minutes (1-1440) |
-| `cli-version` | No | `latest` | nunu-cli version to use |
-
-## Outputs
-
-| Output | Description |
-|--------|-------------|
-| `build-id` | The ID of the uploaded build |
-
-### Using Outputs
+### With Tags and Auto-Delete
 ```yaml
-- name: Upload to nunu.ai
-  id: upload
-  uses: nunu-ai/upload-build-action@v1
+- uses: nunu-ai/upload-build-action@v1
   with:
     api-token: ${{ secrets.NUNU_API_TOKEN }}
     project-id: ${{ secrets.NUNU_PROJECT_ID }}
     file: 'build/app.apk'
-
-- name: Use Build ID
-  run: echo "Uploaded build ID: ${{ steps.upload.outputs.build-id }}"
-```
-
-## Platforms
-
-Supported platforms:
-- `windows` - Windows applications
-- `macos` - macOS applications
-- `linux` - Linux applications
-- `android` - Android APKs
-- `ios-native` - iOS native apps
-- `ios-simulator` - iOS simulator builds
-
-Platform is auto-detected from file extension if possible.
-
-## Setup
-
-### 1. Get API Token
-
-1. Go to nunu.ai, project admin → settings → api keys
-2. Create a new API token with `project:manage-build-storage` permission
-3. Copy the token
-
-### 2. Add Secrets to GitHub
-
-1. Go to your repository **Settings** → **Secrets and variables** → **Actions**
-2. Add `NUNU_API_TOKEN` with your API token
-3. Add `NUNU_PROJECT_ID` with your project ID
-
-### 3. Use the Action
-
-Add the action to your workflow as shown in the examples above.
-
-## Automatic Metadata Collection
-
-The action automatically collects and includes:
-
-- **Git information**: Commit hash, branch, author
-- **Pull request info**: PR number, title, source/target branches
-- **CI information**: Workflow name, run number, triggered by
-- **Build information**: Timestamp, runner OS
-
-This metadata is visible in the nunu.ai dashboard and used by the PR bot.
-
-## Storage Management
-
-Enable `auto-delete` to automatically manage storage:
-```yaml
-- uses: nunu-ai/upload-build-action@v1
-  with:
-    # ... other inputs ...
+    name: 'Dev Build'
+    tags: 'version:1.2.3,branch:${{ github.ref_name }}'
     auto-delete: true
-    deletion-policy: 'least_recent'  # or 'oldest'
 ```
 
-**Deletion policies:**
-- `least_recent`: Delete builds that haven't been accessed recently (default)
-- `oldest`: Delete oldest builds first (FIFO)
+## How It Works
 
-## Troubleshooting
+This action downloads and runs [nunu-cli](https://github.com/nunu-ai/nunu-cli), which automatically collects metadata from the GitHub Actions environment:
 
-### Action fails with "File not found"
+- **Git**: Commit hash, branch, author, message
+- **Pull Request**: PR number, title, source/target branches (when applicable)
+- **CI**: Workflow name, run number, run URL, runner, triggered by
+- **Build**: Timestamp, CLI version
 
-Make sure the file path is correct and the file exists after your build step:
-```yaml
-- name: Verify file exists
-  run: ls -lh build/app.apk
+The same metadata collection works when using nunu-cli directly in other CI/CD systems.
 
-- name: Upload
-  uses: nunu-ai/upload-build-action@v1
-  # ...
-```
+## Features
 
-### Action fails with "Invalid API token"
+- ✅ Simple one-step upload from GitHub Actions
+- ✅ Uses nunu-cli under the hood (automatic metadata collection)
+- ✅ Automatic platform detection from file extension
+- ✅ Large file support (multipart uploads for files >3GB)
+- ✅ Smart storage management with auto-delete
 
-Verify your token:
-1. Check the token has `project:manage-build-storage` permission
-2. Ensure the secret name matches exactly: `NUNU_API_TOKEN`
-3. Try regenerating the token
+## Platform Detection
 
-### Upload times out
+Automatically detected: `.apk` (android), `.ipa` (ios-native), `.exe/.msi` (windows), `.dmg/.pkg` (macos), `.deb/.rpm/.appimage` (linux)
 
-For very large files, increase the timeout:
-```yaml
-with:
-  upload-timeout: '120'  # 2 hours
-```
+For ambiguous files (`.zip`, `.tar`, `.app`), specify `platform` explicitly.
+
+## Documentation
+
+Full documentation and advanced usage examples available at [docs.nunu.ai](https://docs.nunu.ai) (requires authentication).
+
+For CLI usage in other CI/CD systems, see [nunu-cli](https://github.com/nunu-ai/nunu-cli).
 
 ## Support
 
-- 📖 [Documentation](https://docs.nunu.ai)
-
-## License
-
-MIT
+Contact us through nunu.ai for support and questions.
