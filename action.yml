@@ -1,6 +1,6 @@
-name: 'Upload Build to Nunu.ai'
-description: 'Upload build artifacts to Nunu.ai for automated testing'
-author: 'Nunu.ai'
+name: 'Upload Build to nunu.ai'
+description: 'Upload build artifacts to nunu.ai for automated testing'
+author: 'nunu.ai'
 
 branding:
   icon: 'upload-cloud'
@@ -8,10 +8,10 @@ branding:
 
 inputs:
   api-token:
-    description: 'Nunu.ai API token'
+    description: 'nunu.ai API token'
     required: true
   project-id:
-    description: 'Nunu.ai project ID'
+    description: 'nunu.ai project ID'
     required: true
   file:
     description: 'Path to build file to upload'
@@ -35,6 +35,9 @@ inputs:
     default: 'least_recent'
   upload-timeout:
     description: 'Upload timeout in minutes (1-1440)'
+    required: false
+  tags:
+    description: 'Comma-separated list of user-defined tags to associate with the build'
     required: false
   cli-version:
     description: 'Version of nunu-cli to use (default: latest)'

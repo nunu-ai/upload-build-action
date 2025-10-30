@@ -1,6 +1,6 @@
-# Upload Build to Nunu.ai
+# Upload Build to nunu.ai
 
-GitHub Action to upload build artifacts to [Nunu.ai](https://nunu.ai) for automated testing.
+GitHub Action to upload build artifacts to [nunu.ai](https://nunu.ai) for automated testing.
 
 ## Features
 
@@ -13,7 +13,7 @@ GitHub Action to upload build artifacts to [Nunu.ai](https://nunu.ai) for automa
 
 ### Basic Example
 ```yaml
-- name: Upload to Nunu.ai
+- name: Upload to nunu.ai
   uses: nunu-ai/upload-build-action@v1
   with:
     api-token: ${{ secrets.NUNU_API_TOKEN }}
@@ -41,7 +41,7 @@ jobs:
       - name: Build Android
         run: ./gradlew assembleRelease
 
-      - name: Upload to Nunu.ai
+      - name: Upload to nunu.ai
         uses: nunu-ai/upload-build-action@v1
         with:
           api-token: ${{ secrets.NUNU_API_TOKEN }}
@@ -75,7 +75,7 @@ steps:
   - name: Build
     run: ./build.sh
 
-  - name: Upload to Nunu.ai
+  - name: Upload to nunu.ai
     uses: nunu-ai/upload-build-action@v1
     with:
       api-token: ${{ secrets.NUNU_API_TOKEN }}
@@ -90,8 +90,8 @@ steps:
 
 | Input | Required | Default | Description |
 |-------|----------|---------|-------------|
-| `api-token` | Yes | - | Nunu.ai API token |
-| `project-id` | Yes | - | Nunu.ai project ID |
+| `api-token` | Yes | - | nunu.ai API token |
+| `project-id` | Yes | - | nunu.ai project ID |
 | `file` | Yes | - | Path to build file |
 | `name` | No | `Build {run_number}` | Build name |
 | `platform` | sometimes | auto (inferred if possible) | Target platform |
@@ -109,7 +109,7 @@ steps:
 
 ### Using Outputs
 ```yaml
-- name: Upload to Nunu.ai
+- name: Upload to nunu.ai
   id: upload
   uses: nunu-ai/upload-build-action@v1
   with:

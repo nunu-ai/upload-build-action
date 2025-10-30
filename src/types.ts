@@ -8,6 +8,7 @@ export interface ActionInputs {
   autoDelete?: boolean;
   deletionPolicy?: string;
   uploadTimeout?: string;
+  tags?: string[];
   cliVersion: string;
 }
 

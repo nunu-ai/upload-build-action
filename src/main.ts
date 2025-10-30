@@ -65,7 +65,9 @@ async function run(): Promise<void> {
 
 function getInputs(): ActionInputs {
   const autoDelete = core.getInput('auto-delete').toLowerCase() === 'true';
-
+  const tags = core.getInput('tags')
+    ? core.getInput('tags').split(',').map(tag => tag.trim())
+    : undefined;
   return {
     apiToken: core.getInput('api-token', { required: true }),
     projectId: core.getInput('project-id', { required: true }),
@@ -76,6 +78,7 @@ function getInputs(): ActionInputs {
     autoDelete,
     deletionPolicy: autoDelete ? core.getInput('deletion-policy') || undefined : undefined,
     uploadTimeout: core.getInput('upload-timeout') || undefined,
+    tags,
     cliVersion: core.getInput('cli-version') || 'latest',
   };
 }
@@ -97,6 +100,7 @@ function validateInputs(inputs: ActionInputs): void {
       );
     }
   }
+
 }
 
 function buildArgs(inputs: ActionInputs): string[] {
@@ -131,6 +135,10 @@ function buildArgs(inputs: ActionInputs): string[] {
 
   if (inputs.uploadTimeout) {
     args.push('--upload-timeout', inputs.uploadTimeout);
+  }
+
+  if (inputs.tags && inputs.tags.length > 0) {
+    args.push('--tags', inputs.tags.join(','));
   }
 
   return args;
