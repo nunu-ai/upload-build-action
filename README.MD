@@ -6,7 +6,6 @@ GitHub Action to upload build artifacts to [Nunu.ai](https://nunu.ai) for automa
 
 - ✅ Simple one-step upload from GitHub Actions
 - ✅ Automatic metadata collection (commit, branch, PR info)
-- ✅ Support for all platforms (Windows, macOS, Linux, Android, iOS)
 - ✅ Large file support via multipart uploads
 - ✅ Automatic storage management with configurable deletion policies
 
