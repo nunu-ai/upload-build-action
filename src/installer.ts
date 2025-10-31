@@ -66,10 +66,8 @@ function getDownloadUrl(
   const platformName = platform === 'darwin' ? 'macos' : platform === 'win32' ? 'windows' : 'linux';
   const extension = platform === 'win32' ? '.exe' : '';
 
-  // Asset filename: nunu-cli-v0.1.6-linux-x86_64
-  const filename = `nunu-cli-v${version}-${platformName}-${arch}${extension}`;
-
-  // Tag: v0.1.6
+  // Clean filename without version
+  const filename = `nunu-cli-${platformName}-${arch}${extension}`;
   const tag = `v${version}`;
 
   return `https://github.com/${REPO_OWNER}/${REPO_NAME}/releases/download/${tag}/${filename}`;
@@ -89,7 +87,6 @@ async function getLatestVersion(): Promise<string> {
     );
   }
 
-  // Tag will be "v0.1.6", return "0.1.6"
   const version = response.result.tag_name.replace(/^v/, '');
   return version;
 }
