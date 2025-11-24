@@ -26,6 +26,7 @@ async function run(): Promise<void> {
     core.debug(`Working directory: ${process.cwd()}`);
     core.debug(`GITHUB_ACTIONS: ${process.env.GITHUB_ACTIONS}`);
     core.debug(`GITHUB_SHA: ${process.env.GITHUB_SHA}`);
+    core.debug(`GITHUB_EVENT_PATH: ${process.env.GITHUB_EVENT_PATH}`);
 
     let output = '';
     let error = '';
