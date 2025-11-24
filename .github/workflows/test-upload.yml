@@ -1,0 +1,40 @@
+name: Test Upload
+
+on:
+  workflow_dispatch:  # Manual trigger
+  push:
+    branches:
+      - feat/PR-correct-commit-sha
+
+jobs:
+  test-upload:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - uses: actions/checkout@v4
+      
+      # Create a test file to upload
+      - name: Create test build file
+        run: |
+          echo "Test build from commit $GITHUB_SHA" > test-build.txt
+          echo "Timestamp: $(date)" >> test-build.txt
+          echo "Branch: $GITHUB_REF" >> test-build.txt
+          cat test-build.txt
+      
+      # Test the upload action
+      - name: Upload test build
+        id: upload
+        uses: ./
+        with:
+          api-token: ${{ secrets.NUNU_API_TOKEN }}
+          project-id: ${{ secrets.NUNU_PROJECT_ID }}
+          file: test-build.txt
+          name: "Test Upload - ${{ github.run_number }}"
+          platform: linux
+          description: "Test upload from GitHub Actions workflow"
+          tags: "test,ci,automated"
+      
+      - name: Verify upload
+        run: |
+          echo "✅ Upload completed!"
+          echo "Build ID: ${{ steps.upload.outputs.build-id }}"
