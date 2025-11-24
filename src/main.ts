@@ -26,7 +26,20 @@ async function run(): Promise<void> {
     core.debug(`Working directory: ${process.cwd()}`);
     core.debug(`GITHUB_ACTIONS: ${process.env.GITHUB_ACTIONS}`);
     core.debug(`GITHUB_SHA: ${process.env.GITHUB_SHA}`);
-    core.debug(`GITHUB_EVENT_PATH: ${process.env.GITHUB_EVENT_PATH}`);
+
+    const eventPath = process.env.GITHUB_EVENT_PATH;
+    if (eventPath) {
+      core.info(`GITHUB_EVENT_PATH: ${eventPath}`);
+      try {
+        const fs = await import('fs');
+        const eventData = await fs.promises.readFile(eventPath, 'utf8');
+        core.info(`Event payload:\n${eventData}`);
+      } catch (error) {
+        core.warning(`Could not read event file: ${error}`);
+      }
+    } else {
+      core.warning('GITHUB_EVENT_PATH is not set');
+    }
 
     let output = '';
     let error = '';
