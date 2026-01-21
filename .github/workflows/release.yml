@@ -1,51 +1,51 @@
 name: Release
 
 on:
-  push:
-    tags:
-      - 'v*.*.*'  # Only trigger on semantic version tags
+    push:
+        tags:
+            - "v*.*.*" # Only trigger on semantic version tags
 
 permissions:
-  contents: write
+    contents: write
 
 jobs:
-  release:
-    runs-on: ubuntu-latest
-    
-    steps:
-      - uses: actions/checkout@v4
-      
-      - name: Verify dist exists
-        run: |
-          if [ ! -f "dist/index.js" ]; then
-            echo "❌ dist/index.js not found!"
-            echo "Please run 'npm run build' and commit before tagging."
-            exit 1
-          fi
-      
-      - name: Extract version info
-        id: version
-        run: |
-          VERSION=${GITHUB_REF#refs/tags/v}
-          MAJOR_VERSION=$(echo $VERSION | cut -d. -f1)
-          echo "version=$VERSION" >> $GITHUB_OUTPUT
-          echo "major=$MAJOR_VERSION" >> $GITHUB_OUTPUT
-          echo "Releasing v$VERSION (major: v$MAJOR_VERSION)"
-      
-      - name: Update major version tag
-        run: |
-          git config user.name "github-actions[bot]"
-          git config user.email "github-actions[bot]@users.noreply.github.com"
-          
-          # Create/update major version tag (e.g., v1)
-          git tag -fa v${{ steps.version.outputs.major }} -m "Release v${{ steps.version.outputs.major }}"
-          git push origin v${{ steps.version.outputs.major }} --force
-          
-          echo "✅ Updated v${{ steps.version.outputs.major }} tag"
-      
-      - name: Create Release
-        uses: softprops/action-gh-release@v1
-        with:
-          generate_release_notes: true
-          draft: false
-          prerelease: false
+    release:
+        runs-on: [self-hosted, nix, Linux]
+
+        steps:
+            - uses: actions/checkout@v4
+
+            - name: Verify dist exists
+              run: |
+                  if [ ! -f "dist/index.js" ]; then
+                    echo "❌ dist/index.js not found!"
+                    echo "Please run 'npm run build' and commit before tagging."
+                    exit 1
+                  fi
+
+            - name: Extract version info
+              id: version
+              run: |
+                  VERSION=${GITHUB_REF#refs/tags/v}
+                  MAJOR_VERSION=$(echo $VERSION | cut -d. -f1)
+                  echo "version=$VERSION" >> $GITHUB_OUTPUT
+                  echo "major=$MAJOR_VERSION" >> $GITHUB_OUTPUT
+                  echo "Releasing v$VERSION (major: v$MAJOR_VERSION)"
+
+            - name: Update major version tag
+              run: |
+                  git config user.name "github-actions[bot]"
+                  git config user.email "github-actions[bot]@users.noreply.github.com"
+
+                  # Create/update major version tag (e.g., v1)
+                  git tag -fa v${{ steps.version.outputs.major }} -m "Release v${{ steps.version.outputs.major }}"
+                  git push origin v${{ steps.version.outputs.major }} --force
+
+                  echo "✅ Updated v${{ steps.version.outputs.major }} tag"
+
+            - name: Create Release
+              uses: softprops/action-gh-release@v1
+              with:
+                  generate_release_notes: true
+                  draft: false
+                  prerelease: false

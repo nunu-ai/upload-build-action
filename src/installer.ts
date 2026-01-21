@@ -16,7 +16,7 @@ export async function getCliPath(version: string): Promise<string> {
   core.info(`Setting up nunu-cli ${version}...`);
 
   const platform = getPlatform();
-  const arch = 'x86_64';
+  const arch = getArch();
 
   // Resolve version if 'latest'
   if (version === 'latest') {
@@ -28,7 +28,7 @@ export async function getCliPath(version: string): Promise<string> {
   const cleanVersion = version.replace(/^v/, '');
 
   // Check if already cached
-  const toolPath = tc.find(TOOL_NAME, cleanVersion);
+  const toolPath = tc.find(TOOL_NAME, cleanVersion, arch);
   if (toolPath) {
     core.info(`✓ Found cached nunu-cli ${cleanVersion}`);
     return path.join(toolPath, getCliFilename(platform));
@@ -49,7 +49,7 @@ export async function getCliPath(version: string): Promise<string> {
 
   // Cache it
   const binaryName = getCliFilename(platform);
-  const cachedPath = await tc.cacheFile(downloadPath, binaryName, TOOL_NAME, cleanVersion);
+  const cachedPath = await tc.cacheFile(downloadPath, binaryName, TOOL_NAME, cleanVersion, arch);
 
   core.info(`✓ Cached nunu-cli ${cleanVersion}`);
   return path.join(cachedPath, binaryName);
@@ -88,6 +88,17 @@ function getPlatform(): Platform {
     return platform;
   }
   throw new Error(`Unsupported platform: ${platform}`);
+}
+
+function getArch(): string {
+  const arch = os.arch();
+  if (arch === 'x64') {
+    return 'x86_64';
+  }
+  if (arch === 'arm64') {
+    return 'arm64';
+  }
+  throw new Error(`Unsupported architecture: ${arch}`);
 }
 
 function getCliFilename(platform: Platform): string {

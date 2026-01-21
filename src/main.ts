@@ -32,13 +32,13 @@ async function run(): Promise<void> {
     const eventPath = process.env.GITHUB_EVENT_PATH;
     if (eventPath) {
       core.info(`GITHUB_EVENT_PATH: ${eventPath}`);
-      try {
-        const fs = await import('fs');
-        const eventData = await fs.promises.readFile(eventPath, 'utf8');
-        core.info(`Event payload:\n${eventData}`);
-      } catch (error) {
-        core.warning(`Could not read event file: ${error}`);
-      }
+      // try {
+      //   const fs = await import('fs');
+      //   const eventData = await fs.promises.readFile(eventPath, 'utf8');
+      //   core.info(`Event payload:\n${eventData}`);
+      // } catch (error) {
+      //   core.warning(`Could not read event file: ${error}`);
+      // }
     } else {
       core.warning('GITHUB_EVENT_PATH is not set');
     }
