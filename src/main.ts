@@ -45,7 +45,7 @@ async function run(): Promise<void> {
     let error = '';
 
     const exitCode = await exec.exec(cliPath, args, {
-      cwd: process.cwd(),  // Ensure it runs in the checked-out repo
+      cwd: process.cwd(), // Ensure it runs in the checked-out repo
       listeners: {
         stdout: (data: Buffer) => {
           output += data.toString();
@@ -80,7 +80,10 @@ async function run(): Promise<void> {
 function getInputs(): ActionInputs {
   const autoDelete = core.getInput('auto-delete').toLowerCase() === 'true';
   const tags = core.getInput('tags')
-    ? core.getInput('tags').split(',').map(tag => tag.trim())
+    ? core
+        .getInput('tags')
+        .split(',')
+        .map((tag) => tag.trim())
     : undefined;
   return {
     apiToken: core.getInput('api-token', { required: true }),
@@ -100,32 +103,20 @@ function getInputs(): ActionInputs {
 function validateInputs(inputs: ActionInputs): void {
   // Validate deletion policy
   if (inputs.deletionPolicy && !['least_recent', 'oldest'].includes(inputs.deletionPolicy)) {
-    throw new Error(
-      `Invalid deletion-policy: ${inputs.deletionPolicy}. Must be "least_recent" or "oldest".`
-    );
+    throw new Error(`Invalid deletion-policy: ${inputs.deletionPolicy}. Must be "least_recent" or "oldest".`);
   }
 
   // Validate upload timeout if provided
   if (inputs.uploadTimeout) {
     const timeout = parseInt(inputs.uploadTimeout, 10);
     if (isNaN(timeout) || timeout < 1 || timeout > 1440) {
-      throw new Error(
-        `Invalid upload-timeout: ${inputs.uploadTimeout}. Must be between 1 and 1440.`
-      );
+      throw new Error(`Invalid upload-timeout: ${inputs.uploadTimeout}. Must be between 1 and 1440.`);
     }
   }
-
 }
 
 function buildArgs(inputs: ActionInputs): string[] {
-  const args = [
-    'upload',
-    inputs.file,
-    '--token',
-    inputs.apiToken,
-    '--project-id',
-    inputs.projectId,
-  ];
+  const args = ['upload', inputs.file, '--token', inputs.apiToken, '--project-id', inputs.projectId];
 
   if (inputs.name) {
     args.push('--name', inputs.name);
