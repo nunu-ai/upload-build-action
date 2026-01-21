@@ -1,6 +1,8 @@
 import * as core from '@actions/core';
 import * as exec from '@actions/exec';
+
 import { getCliPath } from './installer';
+
 import type { ActionInputs } from './types';
 
 async function run(): Promise<void> {
@@ -109,7 +111,7 @@ function validateInputs(inputs: ActionInputs): void {
   // Validate upload timeout if provided
   if (inputs.uploadTimeout) {
     const timeout = parseInt(inputs.uploadTimeout, 10);
-    if (isNaN(timeout) || timeout < 1 || timeout > 1440) {
+    if (Number.isNaN(timeout) || timeout < 1 || timeout > 1440) {
       throw new Error(`Invalid upload-timeout: ${inputs.uploadTimeout}. Must be between 1 and 1440.`);
     }
   }
