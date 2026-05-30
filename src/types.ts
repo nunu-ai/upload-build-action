@@ -1,6 +1,6 @@
 export interface ActionInputs {
   apiToken: string;
-  projectId: string;
+  projectId?: string;
   file: string;
   name?: string;
   platform?: string;

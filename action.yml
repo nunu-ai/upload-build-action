@@ -11,8 +11,8 @@ inputs:
     description: 'nunu.ai API token'
     required: true
   project-id:
-    description: 'nunu.ai project ID'
-    required: true
+    description: 'Deprecated: no longer required and will be ignored'
+    required: false
   file:
     description: 'Path to build file to upload'
     required: true

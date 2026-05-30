@@ -89,7 +89,7 @@ function getInputs(): ActionInputs {
     : undefined;
   return {
     apiToken: core.getInput('api-token', { required: true }),
-    projectId: core.getInput('project-id', { required: true }),
+    projectId: core.getInput('project-id') || undefined,
     file: core.getInput('file', { required: true }),
     name: core.getInput('name') || undefined,
     platform: core.getInput('platform') || undefined,
@@ -118,7 +118,10 @@ function validateInputs(inputs: ActionInputs): void {
 }
 
 function buildArgs(inputs: ActionInputs): string[] {
-  const args = ['upload', inputs.file, '--token', inputs.apiToken, '--project-id', inputs.projectId];
+  if (inputs.projectId) {
+    core.warning('project-id is deprecated and no longer used by the nunu CLI. You can remove it from your workflow.');
+  }
+  const args = ['upload', inputs.file, '--token', inputs.apiToken];
 
   if (inputs.name) {
     args.push('--name', inputs.name);
