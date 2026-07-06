@@ -5,6 +5,7 @@ import * as path from 'path';
 import * as core from '@actions/core';
 import * as httpm from '@actions/http-client';
 import * as tc from '@actions/tool-cache';
+import { BearerCredentialHandler } from '@actions/http-client/lib/auth';
 
 import type { GithubRelease, Platform } from './types';
 
@@ -67,7 +68,9 @@ function getDownloadUrl(version: string, platform: Platform, arch: string): stri
 }
 
 async function getLatestVersion(): Promise<string> {
-  const http = new httpm.HttpClient('nunu-upload-action');
+  const token = core.getInput('github-token');
+  const handlers = token ? [new BearerCredentialHandler(token)] : [];
+  const http = new httpm.HttpClient('nunu-upload-action', handlers);
   const url = `https://api.github.com/repos/${REPO_OWNER}/${REPO_NAME}/releases/latest`;
 
   core.debug(`Fetching latest release from: ${url}`);
